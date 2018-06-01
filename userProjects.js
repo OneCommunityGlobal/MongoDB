@@ -15,6 +15,6 @@ db.createView('userProjects',
 {$unwind : {path: "$projects", preserveNullAndEmptyArrays: true}},
 {$sort : {_id : 1, "projects.projectName" : 1}},
 {$group : {_id : "$_id", projects : {$push :"$projects" }}},
-{$match :{_id: ObjectId("5b0f09d203858c002dcd4081")} }
+
 
 ])
