@@ -6,16 +6,15 @@ db.userProjects.drop()
 db.createView('userProjects', 
 'userProfiles',
 [
-{$unwind : "$projects"},
-{$project : {_id:1 , projects:1}},
+{$project : {_id:1 ,name : {$concat : ["$firstName", " ", "$lastName"]}, projects:1}},
 {$lookup : { from: "projects", localField: "projects", foreignField: "_id", as: "projectDetails" } },
+{$addFields: {projectDetails : {$filter : {input : "$projectDetails", as : "project", cond : {$eq: ["$$project.isActive", true]}}}}},
 {$unwind: {path : "$projectDetails", preserveNullAndEmptyArrays: true}},
-{$match : {"projectDetails.isActive": true}},
-{$project : {_id:1, projectId :"$projectDetails._id", projectName :"$projectDetails.projectName"}},
-{$sort : {_id: 1, projectName : -1}},
+{$project : {_id:1,name:1, projectId :"$projectDetails._id", projectName :"$projectDetails.projectName"}},
 {$group : {_id : "$_id", projects : {$addToSet :{projectId : "$projectId", projectName : "$projectName"} }}},
-{$unwind : "$projects"},
+{$unwind : {path: "$projects", preserveNullAndEmptyArrays: true}},
 {$sort : {_id : 1, "projects.projectName" : 1}},
 {$group : {_id : "$_id", projects : {$push :"$projects" }}},
+{$match :{_id: ObjectId("5b0f09d203858c002dcd4081")} }
 
 ])
